@@ -1,15 +1,34 @@
+#include "mbed.h"
 #include "Sht31.h"
+
 
 Sht31 sht31(I2C_SDA, I2C_SCL);
 DigitalOut ledTwo(LED2);
-
+InterruptIn btn(BUTTON1);
 PwmOut ledOne(LED1);
 PwmOut ledThree(LED3);
+Thread thread1;
+AnalogIn pot(p15);
+DigitalOut ledfour(LED4);
+
+void potentiometer()
+{
+    float ain;  
+ 
+    ain = pot.read(); 
+    ledfour = 1;          
+    wait(ain);        
+    ledfour = 0;          
+    wait(ain); 
+    
+}
+
 
 void white(){
-            printf("   \n", ledTwo.read());
+            potentiometer();
             ledTwo= 1;
             wait_ms(500);
+            potentiometer();
             ledTwo = !ledTwo;
             wait_ms(2000);
         
@@ -31,15 +50,14 @@ void tempHumid(){
 
 
 int main() {
-
+    btn.rise(tempHumid);
+    thread.start(potentiometer);
+   
     while (1) {
         white();
         white();
         white();
         white();
-        
        tempHumid();
     }
 }
-//prateek
-
