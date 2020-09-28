@@ -1,0 +1,70 @@
+
+#include "mbed.h"
+#include "Sht31.h"
+
+Sht31 sht31(I2C_SDA, I2C_SCL);
+DigitalOut ledTwo(LED2);
+InterruptIn btn(BUTTON1);
+PwmOut ledOne(LED1);
+PwmOut ledThree(LED3);
+AnalogIn pot(p15);
+DigitalOut ledfour(LED4);
+PwmOut speaker(p21);
+
+void play_tone(float frequency, float volume, int interval, int rest) {
+    speaker.period(1.0 / frequency);
+    speaker = volume;
+    wait(interval);
+    speaker = 0.0;
+    wait(rest);
+}
+
+void white(){
+    float ain;
+    ain = pot.read()/4; 
+    ledfour = 1;          
+    wait(ain);        
+    ledfour = 0;          
+    wait(ain); 
+    
+    ledTwo= 1;
+    wait(.5- 2*ain);
+            
+    ledTwo = !ledTwo;
+    wait(2);
+}
+
+void tempHumid(){
+    float temp = sht31.readTemperature();
+    float humidity = sht31.readHumidity();
+        
+    printf("Temperature: %.2f C \n", temp);
+    printf("Humidity: %.2f %% \n", humidity);
+       
+    ledOne = (float)(temp/50);
+    ledThree = (humidity/100);
+    if(temp>= 37.5){
+        play_tone(200.0, 0.5, 1, 0);
+    }
+        
+    if(humidity>=75){
+        play_tone(150.0, 0.5, 1, 0);
+    }
+        
+    if(temp>=37.5 && humidity >= 75){
+        play_tone(150.0, 0.5, 1, 2);
+    }
+}
+
+
+
+int main() {
+    btn.rise(tempHumid);
+    while (1) {
+        white();
+        white();
+        white();
+        white();
+       tempHumid();
+    }
+}
