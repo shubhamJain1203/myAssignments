@@ -1,0 +1,39 @@
+
+
+// include the library code:
+#include <LiquidCrystal.h>
+
+// initialize the library with the numbers of the interface pins
+LiquidCrystal lcd(7, 6, 2, 3, 4, 5);
+
+int sensorPin = 0; 
+
+
+
+
+void setup() {
+  // Setup Serial which is useful for debugging
+  // Use the Serial Monitor to view printed messages
+  Serial.begin(9600);
+  while (!Serial) ; // wait for serial port to connect. Needed for native USB
+  Serial.println("start");
+  
+  // set up the LCD's number of columns and rows:
+  lcd.begin(16, 2);
+  // Print a message to the LCD.
+}
+
+void loop() {
+  
+    {
+lcd.clear();
+int reading = analogRead(sensorPin);  
+float voltage = reading * 5.0;
+voltage /= 1024.0; 
+float temperatureC = (voltage - 0.5) * 100 ; 
+float temperatureF = (temperatureC * 9.0 / 5.0) + 32.0;
+lcd.print(temperatureF); lcd.println("F");
+lcd.print(temperatureC); lcd.println("C");
+delay(1000);
+}
+}
